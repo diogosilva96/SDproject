@@ -36,7 +36,7 @@ while True:
         message = {'source': 'ui', 'destination': 'enteties', 'operation': 'registerEmployee',
                    'data': {'name':name,'email':email,'phone':phone,'number':number,'password':password, 'role':role}}
     if inf == 'getuserid':
-        number = '2020105'
+        number = '202012012'
         message = {'source': 'ui', 'destination':'enteties','operation':'getUserIDs',
                    'data':{'number':number}}
 

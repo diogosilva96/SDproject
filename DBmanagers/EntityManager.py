@@ -62,20 +62,35 @@ def insertTeacher(name,email,phone,number,password):
     return teacherInserted
 
 def getUserIDs(number):
-    isTeacher = False
+    foundRole = False
     query="SELECT persons.id AS user_id,teachers.id AS teacher_id FROM persons,teachers WHERE persons.number = %s AND persons.id = teachers.Person_id"
     data_teacher = (number,)
     cursor.execute(query,data_teacher)
-    for teacher in cursor:
-        useridinfo = teacher
-        isTeacher = True
-    if (isTeacher != True):
+    rows = cursor.fetchall()
+    numrows = int(cursor.rowcount)
+    if numrows>0:
+        foundRole = True
+        useridinfo = rows
+    else:
         query = "SELECT persons.id AS user_id,students.id AS student_id FROM persons,students WHERE persons.number = %s AND persons.id = students.Person_id"
         data_teacher = (number,)
         cursor.execute(query, data_teacher)
-    for student in cursor:
-        useridinfo = student
-        isTeacher=False
+        rows = cursor.fetchall()
+        numrows = int(cursor.rowcount)
+    if numrows>0 and foundRole == False:
+        foundRole = True
+        useridinfo = rows
+    else:
+        query = "SELECT persons.id AS user_id,employees.id AS employee_id FROM persons,employees WHERE persons.number = %s AND persons.id = employees.persons_id"
+        data_employee = (number,)
+        cursor.execute(query,data_employee)
+        rows = cursor.fetchall()
+        numrows = int(cursor.rowcount)
+    if numrows>0 and foundRole == False:
+        foundRole = True
+        useridinfo = rows
+    elif foundRole == False:
+        useridinfo = "denied"
     return useridinfo
 
 
@@ -219,8 +234,7 @@ class ThreadedServer(object):
                         else:
                            result = 'denied'
                     if operation == "getUserIDs":
-                        userids=getUserIDs(data['data']['number'])
-                        result = userids
+                        result=getUserIDs(data['data']['number'])
 
                     if operation == "editUserInfo":
                         editUserInfo(data['data']['userid'],data['data']['name'],data['data']['email'],data['data']['phone'],data['data']['password'])
