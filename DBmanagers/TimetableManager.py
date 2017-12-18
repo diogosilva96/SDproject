@@ -72,10 +72,10 @@ def bookRoom(day,month,year,id_teacher,id_room,startHour,endHour):
         data_period = (startHour,endHour,id_teacher,id_room, lid)
         cursor.execute(add_period,data_period)
         conn.commit()
-        print("Inserido com sucesso")
+        print("[Timetable Manager] A sala foi reservada com sucesso")
     #caso não esteja envia msg de erro
     else:
-        print("A sala não está disponivel")#mandar msg de erro
+        print("[Timetable Manager] A sala não está disponivel")#mandar msg de erro
     return available
 
 
@@ -109,15 +109,15 @@ class ThreadedServer(object):
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.server.bind((self.host, self.port))
-        print('Starting server at', datetime.now())
-        print('Waiting for a client to call.')
+        print('[Timetable Manager] Starting server at', datetime.now())
+        print('[Timetable Manager] Waiting for a client to call.')
 
 
     def listen(self):
         self.server.listen(5)
         while True:
             client, address = self.server.accept()
-            print('Client called')
+            print('[Timetable Manager] Client called')
             #client.settimeout(60)
             threading.Thread(target = self.listenToClient,args = (client,address)).start()
 
@@ -130,13 +130,13 @@ class ThreadedServer(object):
                     data = data.decode('utf-8')
                     data = json.loads(data)
                     operation = data['operation']
-                    print("Message received: ", data)
+                    print("[Timetable Manager] Message received: ", data)
                     if operation == "checkAccess":
                         canAccess = checkAccessTeacher(data['data']['day'],data['data']['month'],data['data']['year'],data['data']['hours'],data['data']['roomid'],data['data']['userid'])
                         if canAccess == True:
-                            print("Acesso garantido na sala ",data['data']['roomid']," ao utilizador ",data['data']['userid'], " at ", datetime.now())
+                            print("[Timetable Manager] Acesso garantido na sala ",data['data']['roomid']," ao utilizador ",data['data']['userid'], " at ", datetime.now())
                         else:
-                            print("Acesso negado na sala ",data['data']['roomid']," ao utilizador ",data['data']['userid'], " at ", datetime.now())
+                            print("[Timetable Manager] Acesso negado na sala ",data['data']['roomid']," ao utilizador ",data['data']['userid'], " at ", datetime.now())
 
                         t = time.localtime()
                         day = str(t.tm_mday)

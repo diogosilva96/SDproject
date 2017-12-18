@@ -48,7 +48,7 @@ def insertTeacher(name,email,phone,number,password):
     teacherInserted = False
     person_id = insertPerson(name,email,phone,number,password)
     if person_id == "used":
-        print("teacher was not inserted (number already in use)")
+        print("[Entity Manager] Teacher was not inserted, number already in use!")
         teacherInserted = False
     else:
         add_teacher = ("INSERT INTO teachers "
@@ -57,7 +57,7 @@ def insertTeacher(name,email,phone,number,password):
         data_teacher= (person_id,)
         cursor.execute(add_teacher,data_teacher)
         conn.commit()
-        print("teacher inserted")
+        print("[Entity Manager] Teacher sucessfully added.")
         teacherInserted = True
     return teacherInserted
 
@@ -83,14 +83,14 @@ def insertEmployee(name,email,phone,number,password,role):
     employeeInserted = False
     person_id = insertPerson(name,email,phone,number,password)
     if person_id == "used":
-        print("employee was not inserted (number already in use)")
+        print("[Entity Manager] Employee was not inserted, number already in use.")
         employeeInserted = False
     else:
         add_employee = ("INSERT INTO employees (persons_id,role) VALUES (%s,%s)")
         data_employee=(person_id,role)
         cursor.execute(add_employee,data_employee)
         conn.commit()
-        print("employee inserted")
+        print("[Entity Manager] Employee sucessfully added.")
         employeeInserted = True
     return employeeInserted
 
@@ -98,7 +98,7 @@ def insertStudent(name,email,phone,number,password):
     studentInserted = False
     person_id = insertPerson(name, email, phone, number, password)
     if person_id == "used":
-        print("student was not inserted (number already in use)")
+        print("[Entity Manager] Student was not inserted, number already in use!")
         teacherInserted = False
     else:
         #adicionar course a students??
@@ -108,7 +108,7 @@ def insertStudent(name,email,phone,number,password):
         data_student= (person_id,)
         cursor.execute(add_student,data_student)
         conn.commit()
-        print("student inserted")
+        print("[Entity Manager] Student sucessfully added")
         studentInserted = True
     return studentInserted
 
@@ -116,7 +116,9 @@ def editUserInfo(id,name,email,phone,password):
     queryupdate= "UPDATE persons SET name = %s, email = %s, phone =%s, password =%s WHERE id = %s"
     cursor.execute(queryupdate, (name,email,phone,password,id))
     conn.commit()
-    print("editado")##EFETUAR CHECKS se for inserido menos campos
+    print("[Entity Manager] User information sucessfully edited.")#EFETUAR CHECKS se for inserido menos campos
+
+
 
 def insertRoom(number,number_places,description):
     room_number_used = checkNumberUsed(number,"room")
@@ -175,15 +177,15 @@ class ThreadedServer(object):
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.server.bind((self.host, self.port))
-        print('Starting server at', datetime.now())
-        print('Waiting for a client to call.')
+        print('[Entity Manager] Starting server at', datetime.now())
+        print('[Entity Manager] Waiting for a client to call.')
 
 
     def listen(self):
         self.server.listen(5)
         while True:
             client, address = self.server.accept()
-            print('Client called')
+            print('[Entity Manager] Client called')
             #client.settimeout(60)
             threading.Thread(target = self.listenToClient,args = (client,address)).start()
 
@@ -195,7 +197,7 @@ class ThreadedServer(object):
                 if data:
                     data = data.decode('utf-8')
                     data = json.loads(data)
-                    print("Message received: ", data)
+                    print("[Entity Manager] Message received: ", data)
                     operation = data['operation']
                     if operation == "registerTeacher":
                         teacherInserted=insertTeacher(data['data']['name'],data['data']['email'],data['data']['phone'],data['data']['number'],data['data']['password'])
@@ -230,6 +232,7 @@ class ThreadedServer(object):
                         editUserInfo(data['data']['userid'],data['data']['name'],data['data']['email'],data['data']['phone'],data['data']['password'])
                         datares = data['data']
                         datares['result'] ='edited'
+
 
                     if operation == "insertRoom":
                         room_inserted = insertRoom(data['data']['number'],data['data']['numberplaces'],data['data']['description'])

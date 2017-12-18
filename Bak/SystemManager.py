@@ -10,11 +10,13 @@ channel.queue_declare(queue='queue_server', durable=True)
 print('[*]Waiting for messages. Exit with ctrl+c')
 
 def callback(ch,method,properties,body):
-    print("[System Manager] Received %r" %body)
-    print("[System Manager] Done.")
+    message = body
+    message = message.decode('utf-8')
+    print("[Logs Manager] Received %r" %body)
+    print("[Logs Manager] Log saved.")
     ch.basic_ack(delivery_tag=method.delivery_tag)
 
 channel.basic_qos(prefetch_count=1)
-channel.basic_consume(callback,queue='task_queue')
+channel.basic_consume(callback,queue='queue_server')
 
 channel.start_consuming()
