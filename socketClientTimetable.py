@@ -19,7 +19,7 @@ while True:
         message = message.encode('utf-8')
        # print("Mensagem enviada: ",message)
         client.sendall(message)
-    if inf == "checkAccess":
+    if inf == "access":
         uid = str(1)
         rid = str(1)
         t = time.localtime()
