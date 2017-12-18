@@ -202,49 +202,41 @@ class ThreadedServer(object):
                     if operation == "registerTeacher":
                         teacherInserted=insertTeacher(data['data']['name'],data['data']['email'],data['data']['phone'],data['data']['number'],data['data']['password'])
                         if teacherInserted == True:
-                            datares = data['data']
-                            datares['result'] = 'inserted'
+                            result = 'success'
                         else:
-                            datares = data['data']
-                            datares['result'] = 'not inserted'
+                            result = 'denied'
 
                     if operation == "registerStudent":
                         studentInserted = insertStudent(data['data']['name'], data['data']['email'],data['data']['phone'], data['data']['number'],data['data']['password'])
                         if studentInserted == True:
-                            datares = data['data']
-                            datares['result'] = 'inserted'
+                            result = 'success'
                         else:
-                            datares = data['data']
-                            datares['result'] = 'not inserted'
+                            result = 'denied'
                     if operation == "registerEmployee":
                         employeeInserted = insertEmployee(data['data']['name'], data['data']['email'],data['data']['phone'], data['data']['number'],data['data']['password'], data['data']['role'])
                         if employeeInserted == True:
-                            datares = data['data']
-                            datares['result'] = 'inserted'
+                            result = 'success'
                         else:
-                            datares = data['data']
-                            datares['result'] = 'not inserted'
+                           result = 'denied'
                     if operation == "getUserIDs":
                         userids=getUserIDs(data['data']['number'])
-                        datares = data['data']
-                        datares['result'] = userids
+                        result = userids
+
                     if operation == "editUserInfo":
                         editUserInfo(data['data']['userid'],data['data']['name'],data['data']['email'],data['data']['phone'],data['data']['password'])
                         datares = data['data']
-                        datares['result'] ='edited'
+                        datares['result'] ='sucess'
 
 
                     if operation == "insertRoom":
                         room_inserted = insertRoom(data['data']['number'],data['data']['numberplaces'],data['data']['description'])
-                        datares = data['data']
                         if room_inserted == True:
-                            datares['result'] = "inserted"
+                            result = "success"
                         else:
-                            datares['result'] = "not inserted"
+                            result = "denied"
                     if operation == "checkAccess":
                         canAccess = checkAccessRoom(data['data']['userid'],data['data']['roomid'])
-                        datares = data['data']
-                        datares['result'] = canAccess
+                        result = canAccess
                     if operation == "getAllRooms":
                         result = getAllRooms()
                         data['data'] = {}
@@ -255,7 +247,7 @@ class ThreadedServer(object):
 
 
 
-                    message ={'source':data['destination'],'destination':data['source'],'operation':data['operation'],'data':datares}
+                    message ={'source':data['destination'],'destination':data['source'],'operation':data['operation'],'data':data['data'],'result':result}
                     message = json.dumps(message)
                     message = message.encode('utf-8')
                     response = message

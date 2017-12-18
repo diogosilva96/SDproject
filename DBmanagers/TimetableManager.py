@@ -131,52 +131,32 @@ class ThreadedServer(object):
                     data = json.loads(data)
                     operation = data['operation']
                     print("[Timetable Manager] Message received: ", data)
-                    if operation == "checkAccess":
+                    if operation == "access":
                         canAccess = checkAccessTeacher(data['data']['day'],data['data']['month'],data['data']['year'],data['data']['hours'],data['data']['roomid'],data['data']['userid'])
                         if canAccess == True:
                             print("[Timetable Manager] Acesso garantido na sala ",data['data']['roomid']," ao utilizador ",data['data']['userid'], " at ", datetime.now())
+                            result = "success"
                         else:
                             print("[Timetable Manager] Acesso negado na sala ",data['data']['roomid']," ao utilizador ",data['data']['userid'], " at ", datetime.now())
+                            result = "denied"
 
-                        t = time.localtime()
-                        day = str(t.tm_mday)
-                        month = str(t.tm_mon)
-                        year = str(t.tm_year)
-                        th = str(t.tm_hour)
-                        tm = str(t.tm_min)
-                        ts = str(t.tm_sec)
-                        datares = data['data']
-                        datares['day'] = day
-                        datares['month']=month
-                        datares['year']=year
-                        datares['hours']=th
-                        datares['minutes']=tm
-                        datares['seconds']=ts
-                        datares['result'] = canAccess
-                        message = {'source': data['destination'], 'destination': data['source'], 'operation': data['operation'],
-                                   'data': datares}
                     if operation== "getTimetableRoom":
                         result = getTimetableRoom(data['data']['roomid'],data['data']['day'],data['data']['month'],data['data']['year'])
-                        datares = data['data']
-                        datares['result'] = result
-                        message = {'source': data['destination'], 'destination': data['source'], 'operation': data['operation'],
-                                   'data': datares}
 
                     if operation =="bookRoom":
                         available=bookRoom(data['data']['day'],data['data']['month'],data['data']['year'],data['data']['userid'],data['data']['roomid'],data['data']['startHour'],data['data']['endHour'])
                         if available == True:
-                            result = 'inserted'
+                            result = 'success'
                         else:
-                            result = 'not inserted'
-                        datares = data['data']
-                        datares["result"] = result
-                        message = {'source': data['destination'], 'destination': data['source'], 'operation': data['operation'],
-                                   'data': datares}
+                            result = 'denied'
+
+                    message = {'source': data['destination'], 'destination': data['source'],
+                               'operation': data['operation'],
+                               'data': data['data'], 'result': result}
                     message = json.dumps(message)
                     message = message.encode('utf-8')
                     response = message
                     client.send(response)
-
                 else:
                     response = "wrong operation"
                     response = response.encode('utf-8')

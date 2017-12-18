@@ -52,7 +52,7 @@ while True:
         print("Mensagem recebida: ",_data)
         _data = json.loads(_data)
         if _data['operation']=="access":
-            print("Pode aceder: ",_data['data']['result'])
+            print("Pode aceder: ",_data['result'])
         if _data['operation']=="book":
             print(_data)
 

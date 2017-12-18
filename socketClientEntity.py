@@ -43,7 +43,7 @@ while True:
     if inf == 'edituserinfo':
         id='13'
         name='gargoyle'
-        email=''
+        email='asd@email'
         phone='911'
         password='nineeleven'
         message = {'source': 'ui','destination':'enteties','operation':'editUserInfo','data':{'userid':id,'name':name,'email':email,'phone':phone,'password':password}}
