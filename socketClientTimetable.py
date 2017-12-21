@@ -19,7 +19,7 @@ while True:
         message = message.encode('utf-8')
        # print("Mensagem enviada: ",message)
         client.sendall(message)
-    if inf == "checkAccess":
+    if inf == "access":
         uid = str(1)
         rid = str(1)
         t = time.localtime()
@@ -52,7 +52,7 @@ while True:
         print("Mensagem recebida: ",_data)
         _data = json.loads(_data)
         if _data['operation']=="access":
-            print("Pode aceder: ",_data['data']['result'])
+            print("Pode aceder: ",_data['result'])
         if _data['operation']=="book":
             print(_data)
 
