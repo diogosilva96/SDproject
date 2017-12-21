@@ -36,10 +36,13 @@ while True:
         message = {'source': 'ui', 'destination': 'enteties', 'operation': 'registerEmployee',
                    'data': {'name':name,'email':email,'phone':phone,'number':number,'password':password, 'role':role}}
     if inf == 'getuserid':
-        number = '202012012'
+        number = '2020106'
         message = {'source': 'ui', 'destination':'enteties','operation':'getUserIDs',
                    'data':{'number':number}}
-
+    if inf == 'getuserdata':
+        number='2020106'
+        message = {'source': 'ui', 'destination': 'enteties', 'operation': 'getUserData',
+                   'data': {'number': number}}
     if inf == 'edituserinfo':
         id='13'
         name='gargoyle'
@@ -54,7 +57,7 @@ while True:
         message = {'source': 'ui','destination':'enteties','operation':'insertRoom','data':{'number':number,'description':description,'numberplaces':number_places}}
     if inf == 'access':
         userid = 13
-        roomid = 1
+        roomid = 3
         message = {'source': 'ui', 'destination': 'enteties', 'operation': 'checkAccess',
                    'data': {'userid':userid,'roomid':roomid}}
     if inf == 'getallrooms':

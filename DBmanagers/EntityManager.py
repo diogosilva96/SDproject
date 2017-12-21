@@ -9,7 +9,7 @@ cursor = conn.cursor(dictionary=True)
 
 
 
-#FAZER VERIFICAÇÕES NOS INSERTS
+
 def insertPerson(name,mail,phone,number,password):
     numberUsed=checkNumberUsed(number,"person")
     if numberUsed == False:
@@ -44,7 +44,6 @@ def checkNumberUsed(number,type):
     return numberUsed
 
 def insertTeacher(name,email,phone,number,password):
-    #ADICIONAR DISCIPLINA AO TEACHER?
     teacherInserted = False
     person_id = insertPerson(name,email,phone,number,password)
     if person_id == "used":
@@ -60,6 +59,16 @@ def insertTeacher(name,email,phone,number,password):
         print("[Entity Manager] Teacher sucessfully added.")
         teacherInserted = True
     return teacherInserted
+
+def getUserData(number): ## TERMINAR
+    query="SELECT id,name,email,phone FROM persons WHERE number=%s"
+    data_user = (number,)
+    cursor.execute(query,data_user)
+    userdata = cursor.fetchall()
+    numrows = int(cursor.rowcount)
+    if numrows==0:
+        userdata = "denied"
+    return userdata
 
 def getUserIDs(number):
     foundRole = False
@@ -164,18 +173,6 @@ def checkAccessRoom(userid,roomid):
     return canAccess
 
 
-def insertPersonsRoom():
-    print("Insira o id da pessoa:")
-    person_id = input()
-    print("Insira o id da sala:")
-    room_id = input()
-
-    add_personsroom = ("INSERT INTO persons_has_rooms"
-                       "(persons_id,rooms_id)"
-                       "VALUES(%s,%s)")
-    data_personsroom = (person_id,room_id)
-    cursor.execute(add_personsroom,data_personsroom)
-
 
 
 def getAllRooms():
@@ -238,10 +235,10 @@ class ThreadedServer(object):
 
                     if operation == "editUserInfo":
                         editUserInfo(data['data']['userid'],data['data']['name'],data['data']['email'],data['data']['phone'],data['data']['password'])
-                        datares = data['data']
-                        datares['result'] ='sucess'
+                        result ='sucess'
 
-
+                    if operation == "getUserData":# TEstar
+                        result = getUserData(data['data']['number'])
                     if operation == "insertRoom":
                         room_inserted = insertRoom(data['data']['number'],data['data']['numberplaces'],data['data']['description'])
                         if room_inserted == True:
@@ -252,10 +249,9 @@ class ThreadedServer(object):
                         canAccess = checkAccessRoom(data['data']['userid'],data['data']['roomid'])
                         result = canAccess
                     if operation == "getAllRooms":
+                        data['data']={} # alterar
                         result = getAllRooms()
-                        data['data'] = {}
-                        data['data']['result'] = result
-                        datares = data['data']['result']
+
                     #operation get all users
                     #operation insert person room
 

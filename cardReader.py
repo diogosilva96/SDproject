@@ -8,7 +8,7 @@ channel = connection.channel()
 channel.queue_declare(queue='queue_server',durable=True) #fila persistente (durable)!
 
 def buildMessage():
-    print("[Card Reader] Digite o id do utilizador e da sala no formato [userid,roomid]")
+    print("[Card Reader] Please type de user id in the format [userid,roomid]")
     urid=input()
     aList=urid.split(",")
     if len(aList) == 2:
@@ -31,11 +31,11 @@ def buildMessage():
           #print(parsed_json['data']['seconds'])
           return message
       else:
-          print("[Card Reader] Erro, insira 2 inteiros!")
+          print("[Card Reader] Error, please type 2 integers!")
           message = ""
           return message
     else:
-        print("[Card Reader] Erro, digite apenas 2 id's no formato [userid,roomid]")
+        print("[Card Reader] Error, please type only a userid and a roomid in the format [userid,roomid]")
         message = ""
         return message
 
@@ -52,9 +52,9 @@ while True:
             channel.basic_publish(exchange='',routing_key='queue_server',body=message,properties=pika.BasicProperties(delivery_mode=2))#exchange='' equivale a default exchange
             print("[Card Reader]Sent: %r " %message)
         else:
-            print("[Card Reader] Erro os valores introduzidos não se encontram no formato!")
+            print("[Card Reader] Error the inserted values are not in the correct format!")
     except ValueError:
-        print("[Card Reader] Por favor digite 2 inteiros")
+        print("[Card Reader] Please type 2 integers in the format [userid,roomid]")
     except KeyboardInterrupt:
         print("[Card Reader] Sucessfully exited!")
         break
