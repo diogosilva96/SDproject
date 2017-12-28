@@ -70,37 +70,32 @@ def getUserData(number): ## TERMINAR
         userdata = "denied"
     return userdata
 
-def getUserID(number):
+def getUserIDs(number):
     foundRole = False
-    query="SELECT persons.id AS user_id,teachers.id AS teacher_id FROM persons,teachers WHERE persons.number = %s AND persons.id = teachers.Person_id"
+    query="SELECT persons.id AS userid,teachers.id AS teacherid FROM persons,teachers WHERE persons.number = %s AND persons.id = teachers.Person_id"
     data_teacher = (number,)
     cursor.execute(query,data_teacher)
-    rows = cursor.fetchall()
-    numrows = int(cursor.rowcount)
-    if numrows>0:
+    for teacher in cursor:
         foundRole = True
-        useridinfo = rows
-    else:
-        query = "SELECT persons.id AS user_id,students.id AS student_id FROM persons,students WHERE persons.number = %s AND persons.id = students.Person_id"
+        useridinfo = teacher
+    if (foundRole == False):
+        query = "SELECT persons.id AS userid,students.id AS studentid FROM persons,students WHERE persons.number = %s AND persons.id = students.Person_id"
         data_teacher = (number,)
         cursor.execute(query, data_teacher)
-        rows = cursor.fetchall()
-        numrows = int(cursor.rowcount)
-    if numrows>0 and foundRole == False:
-        foundRole = True
-        useridinfo = rows
-    else:
-        query = "SELECT persons.id AS user_id,employees.id AS employee_id FROM persons,employees WHERE persons.number = %s AND persons.id = employees.persons_id"
+        for student in cursor:
+            foundRole = True
+            useridinfo = student
+    if (foundRole == False):
+        query = "SELECT persons.id AS userid,employees.id AS employeeid FROM persons,employees WHERE persons.number = %s AND persons.id = employees.persons_id"
         data_employee = (number,)
         cursor.execute(query,data_employee)
-        rows = cursor.fetchall()
-        numrows = int(cursor.rowcount)
-    if numrows>0 and foundRole == False:
-        foundRole = True
-        useridinfo = rows
-    elif foundRole == False:
+        for employee in cursor:
+            foundRole = True
+            useridinfo = employee
+    if (foundRole == False):
         useridinfo = "denied"
     return useridinfo
+
 
 
 def insertEmployee(name,email,phone,number,role):
@@ -230,7 +225,7 @@ class ThreadedServer(object):
                         else:
                            result = 'denied'
                     if operation == "getUserIDs":
-                        result=getUserID(data['data']['number'])
+                        result=getUserIDs(data['data']['number'])
 
                     if operation == "editUserInfo":
                         editUserInfo(data['data']['userid'],data['data']['name'],data['data']['email'],data['data']['phone'])
