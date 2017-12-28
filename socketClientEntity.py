@@ -2,7 +2,7 @@ import socket
 import json
 
 #PARA TESTES NA COMUNICAÇÃO
-address = ('localhost',6789)
+address = ('localhost',8001)
 max_size = 1024
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(address)

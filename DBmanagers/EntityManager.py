@@ -208,20 +208,20 @@ class ThreadedServer(object):
                     if operation == "registerTeacher":
                         teacherInserted=insertTeacher(data['data']['name'],data['data']['email'],data['data']['phone'],data['data']['number'])
                         if teacherInserted == True:
-                            result = getUserID(data['data']['number'])
+                            result = getUserIDs(data['data']['number'])
                         else:
                             result = 'denied'
 
                     if operation == "registerStudent":
                         studentInserted = insertStudent(data['data']['name'], data['data']['email'],data['data']['phone'], data['data']['number'])
                         if studentInserted == True:
-                            result = getUserID(data['data']['number'])
+                            result = getUserIDs(data['data']['number'])
                         else:
                             result = 'denied'
                     if operation == "registerEmployee":
                         employeeInserted = insertEmployee(data['data']['name'], data['data']['email'],data['data']['phone'], data['data']['number'], data['data']['role'])
                         if employeeInserted == True:
-                            result = getUserID(data['data']['number'])
+                            result = getUserIDs(data['data']['number'])
                         else:
                            result = 'denied'
                     if operation == "getUserIDs":
@@ -270,7 +270,7 @@ class ThreadedServer(object):
 
 if __name__ == "__main__":
     while True:
-        ThreadedServer('localhost',6789).listen()
+        ThreadedServer('localhost',8001).listen()
 
 
 

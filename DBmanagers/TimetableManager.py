@@ -180,7 +180,7 @@ class ThreadedServer(object):
 
 if __name__ == "__main__":
     while True:
-          ThreadedServer('localhost',6789).listen()
+          ThreadedServer('localhost',8002).listen()
 
 
 cursor.close()
