@@ -183,5 +183,3 @@ if __name__ == "__main__":
           ThreadedServer('localhost',8002).listen()
 
 
-cursor.close()
-conn.close()
