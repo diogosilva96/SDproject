@@ -27,7 +27,7 @@ def checkRoomAvailability(tid,rid,sHour,eHour):
     rows = cursor.fetchall()
     numrows = int(cursor.rowcount)
     if (numrows == 0):
-        print("não existem periods neste dia")
+        print("No periods in that day")
     else:
         for row in rows:
             _sHour = int(row['startHour'])
@@ -37,7 +37,7 @@ def checkRoomAvailability(tid,rid,sHour,eHour):
                     if ocupiedHours==desiredHours:
                         isOcupied = True
 
-    return not isOcupied #Devolve se está disponivel ou não
+    return not isOcupied #Devolve se esta disponivel ou nao
 
 def bookRoom(day,month,year,id_teacher,id_room,startHour,endHour):
     #Verifica se ja existe um timetable para tal dia
@@ -46,7 +46,7 @@ def bookRoom(day,month,year,id_teacher,id_room,startHour,endHour):
     row = cursor.fetchall()
     numrows = int(cursor.rowcount)
     if numrows == 0:
-        #se não existir insere no timetables
+        #se nao existir insere no timetables
         add_timetables = ("INSERT INTO timetables "
                           "(day,month,year)"
                           "VALUES (%s, %s, %s)")
@@ -72,10 +72,10 @@ def bookRoom(day,month,year,id_teacher,id_room,startHour,endHour):
         data_period = (startHour,endHour,id_teacher,id_room, lid)
         cursor.execute(add_period,data_period)
         conn.commit()
-        print("[Timetable Manager] A sala foi reservada com sucesso")
-    #caso não esteja envia msg de erro
+        print("[Timetable Manager] Room booked with sucess.")
+    #caso nao esteja envia msg de erro
     else:
-        print("[Timetable Manager] A sala não está disponivel")#mandar msg de erro
+        print("[Timetable Manager] Room is not available to be booked.")#mandar msg de erro
     return available
 
 
@@ -87,6 +87,12 @@ def getTimetableRoom(roomid,day,month,year):
     data = cursor.fetchall()
     return data
 
+def getTimetableDay(userid,day,month,year):
+    query = ("SELECT periods.startHour, periods.endHour,periods.idroom FROM timetables,periods "
+             "WHERE timetables.day=%s AND timetables.month = %s AND timetables.year=%s AND  periods.timetables_id = timetables.id AND periods.idteacher = %s")
+    cursor.execute(query, (day,month,year,userid))
+    data = cursor.fetchall()
+    return data
 
 def DeleteTimetableTeacher(day,month,year,teacher_id):
     query="SELECT periods.id FROM periods,timetables WHERE periods.timetables_id = timetables.id AND periods.idteacher = %s AND timetables.day = %s AND timetables.month = %s AND timetables.year = %s"
@@ -149,6 +155,9 @@ class ThreadedServer(object):
                             result = 'success'
                         else:
                             result = 'denied'
+                    if operation == "getTimetableDay":
+                        result = getTimetableDay(data['data']['userid'],data['data']['day'],data['data']['month'],data['data']['year'])
+
 
                     message = {'source': data['destination'], 'destination': data['source'],
                                'operation': data['operation'],

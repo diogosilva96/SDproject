@@ -8,7 +8,7 @@ max_size = 1024
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(address)
 while True:
-    print("aqui")
+    print("Type operation")
     inf = input()
     if inf == "view":
         rid = str(1)
@@ -16,6 +16,15 @@ while True:
         month = str(12)
         year = str(2019)
         message = '{"source":"ui" ,"destination":"timetables" ,"operation": "getTimetableRoom", "data":{"roomid":'+rid+',"day":'+ day +',"month":'+month+',"year":'+year+'}}'
+        message = message.encode('utf-8')
+       # print("Mensagem enviada: ",message)
+        client.sendall(message)
+    if inf == "gettimetableday":
+        userid = str(1)
+        day = str(1)
+        month = str(12)
+        year = str(2019)
+        message = '{"source":"ui" ,"destination":"timetables" ,"operation": "getTimetableDay", "data":{"userid":'+userid+',"day":'+ day +',"month":'+month+',"year":'+year+'}}'
         message = message.encode('utf-8')
        # print("Mensagem enviada: ",message)
         client.sendall(message)
@@ -29,7 +38,7 @@ while True:
         th = str(t.tm_hour)
         tm = str(t.tm_min)
         ts = str(t.tm_sec)
-        message = '{"source": "cardreader" ,"destination": "timetables" ,"operation":"access", "data":{"userid":' + str(uid) + ' ,"roomid":' + str(rid) + ',"day": ' + day + ' ,"month":' + month + ' ,"year":' + year + ' ,"hours":' + th + ' ,"minutes":' + tm + ' ,"seconds":' + ts + '}}'
+        message = '{"source": "ui" ,"destination": "timetables" ,"operation":"access", "data":{"userid":' + str(uid) + ' ,"roomid":' + str(rid) + ',"day": ' + day + ' ,"month":' + month + ' ,"year":' + year + ' ,"hours":' + th + ' ,"minutes":' + tm + ' ,"seconds":' + ts + '}}'
         message = message.encode('utf-8')
         #print("Mensagem enviada: ",message)
         client.sendall(message)

@@ -10,14 +10,14 @@ cursor = conn.cursor(dictionary=True)
 
 
 
-def insertPerson(name,mail,phone,number,password):
+def insertPerson(name,mail,phone,number):
     numberUsed=checkNumberUsed(number,"person")
     if numberUsed == False:
         add_person=("INSERT INTO persons "
-                   "(name, email, phone, number, password) "
-                   "VALUES (%s, %s, %s, %s, %s)")
+                   "(name, email, phone, number) "
+                   "VALUES (%s, %s, %s, %s)")
 
-        data_person=(name,mail,phone,number,password)
+        data_person=(name,mail,phone,number)
         cursor.execute(add_person,data_person)
         lid = cursor.lastrowid
     else:
@@ -43,9 +43,9 @@ def checkNumberUsed(number,type):
         numberUsed = False
     return numberUsed
 
-def insertTeacher(name,email,phone,number,password):
+def insertTeacher(name,email,phone,number):
     teacherInserted = False
-    person_id = insertPerson(name,email,phone,number,password)
+    person_id = insertPerson(name,email,phone,number)
     if person_id == "used":
         print("[Entity Manager] Teacher was not inserted, number already in use!")
         teacherInserted = False
@@ -70,7 +70,7 @@ def getUserData(number): ## TERMINAR
         userdata = "denied"
     return userdata
 
-def getUserIDs(number):
+def getUserID(number):
     foundRole = False
     query="SELECT persons.id AS user_id,teachers.id AS teacher_id FROM persons,teachers WHERE persons.number = %s AND persons.id = teachers.Person_id"
     data_teacher = (number,)
@@ -103,9 +103,9 @@ def getUserIDs(number):
     return useridinfo
 
 
-def insertEmployee(name,email,phone,number,password,role):
+def insertEmployee(name,email,phone,number,role):
     employeeInserted = False
-    person_id = insertPerson(name,email,phone,number,password)
+    person_id = insertPerson(name,email,phone,number)
     if person_id == "used":
         print("[Entity Manager] Employee was not inserted, number already in use.")
         employeeInserted = False
@@ -118,11 +118,11 @@ def insertEmployee(name,email,phone,number,password,role):
         employeeInserted = True
     return employeeInserted
 
-def insertStudent(name,email,phone,number,password):
+def insertStudent(name,email,phone,number):
     studentInserted = False
-    person_id = insertPerson(name, email, phone, number, password)
+    person_id = insertPerson(name, email, phone, number)
     if person_id == "used":
-        print("[Entity Manager] Student was not inserted, number already in use!")
+        print("[Entity Manager] Student was not inserted, number is already in use!")
         teacherInserted = False
     else:
         #adicionar course a students??
@@ -136,9 +136,9 @@ def insertStudent(name,email,phone,number,password):
         studentInserted = True
     return studentInserted
 
-def editUserInfo(id,name,email,phone,password):
-    queryupdate= "UPDATE persons SET name = %s, email = %s, phone =%s, password =%s WHERE id = %s"
-    cursor.execute(queryupdate, (name,email,phone,password,id))
+def editUserInfo(id,name,email,phone):
+    queryupdate= "UPDATE persons SET name = %s, email = %s, phone =%s WHERE id = %s"
+    cursor.execute(queryupdate, (name,email,phone,id))
     conn.commit()
     print("[Entity Manager] User information sucessfully edited.")#EFETUAR CHECKS se for inserido menos campos
 
@@ -146,7 +146,6 @@ def editUserInfo(id,name,email,phone,password):
 
 def insertRoom(number,number_places,description):
     room_number_used = checkNumberUsed(number,"room")
-    room_inserted = False
     if room_number_used == False:
         add_room = ("INSERT INTO rooms "
                     "(number, number_places,description)"
@@ -212,32 +211,32 @@ class ThreadedServer(object):
                     print("[Entity Manager] Message received: ", data)
                     operation = data['operation']
                     if operation == "registerTeacher":
-                        teacherInserted=insertTeacher(data['data']['name'],data['data']['email'],data['data']['phone'],data['data']['number'],data['data']['password'])
+                        teacherInserted=insertTeacher(data['data']['name'],data['data']['email'],data['data']['phone'],data['data']['number'])
                         if teacherInserted == True:
-                            result = 'success'
+                            result = getUserID(data['data']['number'])
                         else:
                             result = 'denied'
 
                     if operation == "registerStudent":
-                        studentInserted = insertStudent(data['data']['name'], data['data']['email'],data['data']['phone'], data['data']['number'],data['data']['password'])
+                        studentInserted = insertStudent(data['data']['name'], data['data']['email'],data['data']['phone'], data['data']['number'])
                         if studentInserted == True:
-                            result = 'success'
+                            result = getUserID(data['data']['number'])
                         else:
                             result = 'denied'
                     if operation == "registerEmployee":
-                        employeeInserted = insertEmployee(data['data']['name'], data['data']['email'],data['data']['phone'], data['data']['number'],data['data']['password'], data['data']['role'])
+                        employeeInserted = insertEmployee(data['data']['name'], data['data']['email'],data['data']['phone'], data['data']['number'], data['data']['role'])
                         if employeeInserted == True:
-                            result = 'success'
+                            result = getUserID(data['data']['number'])
                         else:
                            result = 'denied'
                     if operation == "getUserIDs":
-                        result=getUserIDs(data['data']['number'])
+                        result=getUserID(data['data']['number'])
 
                     if operation == "editUserInfo":
-                        editUserInfo(data['data']['userid'],data['data']['name'],data['data']['email'],data['data']['phone'],data['data']['password'])
+                        editUserInfo(data['data']['userid'],data['data']['name'],data['data']['email'],data['data']['phone'])
                         result ='sucess'
 
-                    if operation == "getUserData":# TEstar
+                    if operation == "getUserData":
                         result = getUserData(data['data']['number'])
                     if operation == "insertRoom":
                         room_inserted = insertRoom(data['data']['number'],data['data']['numberplaces'],data['data']['description'])
@@ -263,7 +262,7 @@ class ThreadedServer(object):
                     response = message
                     client.send(response)
                 else:
-                    response = "operação errada"
+                    response = "Wrong Operation"
                     response = response.encode('utf-8')
                     client.send(response)
 
