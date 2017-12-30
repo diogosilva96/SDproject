@@ -13,9 +13,7 @@ cursor = conn.cursor(dictionary=True)
 def insertPerson(name,mail,phone,number):
     numberUsed=checkNumberUsed(number,"person")
     if numberUsed == False:
-        add_person=("INSERT INTO persons "
-                   "(name, email, phone, number) "
-                   "VALUES (%s, %s, %s, %s)")
+        add_person=("INSERT INTO persons (name, email, phone, number) VALUES (%s, %s, %s, %s)")
 
         data_person=(name,mail,phone,number)
         cursor.execute(add_person,data_person)
@@ -96,6 +94,12 @@ def getUserIDs(number):
         useridinfo = "denied"
     return useridinfo
 
+
+def getTeachersInfo():
+    query = ("SELECT teachers.id,persons.name,persons.number FROM teachers,persons WHERE teachers.Person_id = persons.id")
+    cursor.execute(query)
+    data = cursor.fetchall()
+    return data
 
 
 def insertEmployee(name,email,phone,number,role):
@@ -229,7 +233,7 @@ class ThreadedServer(object):
 
                     if operation == "editUserInfo":
                         editUserInfo(data['data']['userid'],data['data']['name'],data['data']['email'],data['data']['phone'])
-                        result ='sucess'
+                        result ='success'
 
                     if operation == "getUserData":
                         result = getUserData(data['data']['number'])
@@ -245,13 +249,18 @@ class ThreadedServer(object):
                     if operation == "getAllRooms":
                         data['data']={} # alterar
                         result = getAllRooms()
+                    if operation == "getTeachersInfo":
+                        data['data']={}
+                        result=getTeachersInfo()
 
-                    #operation get all users
-                    #operation insert person room
 
+                    if data['data']=={}:
+                        message = {'source': data['destination'], 'destination': data['source'],
+                                   'operation': data['operation'], 'result': result}
+                    else:
+                        message ={'source':data['destination'],'destination':data['source'],'operation':data['operation'],'data':data['data'],'result':result}
 
-
-                    message ={'source':data['destination'],'destination':data['source'],'operation':data['operation'],'data':data['data'],'result':result}
+                    print(message)
                     message = json.dumps(message)
                     message = message.encode('utf-8')
                     response = message

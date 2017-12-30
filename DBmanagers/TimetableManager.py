@@ -3,41 +3,74 @@ import socket
 import json
 import threading
 from datetime import datetime
-import time
 
 conn = mysql.connector.connect(host="localhost",user='root', database='timetables')
 cursor = conn.cursor(dictionary=True)
 
 def checkAccessTeacher(day,month,year,accessHour,idroom,idteacher):
-    canAcess = False
+    accessHour
+    canAccess = False
+    accessHour=accessHour.split(":")
     query="SELECT DISTINCT periods.startHour, periods.endHour FROM periods,timetables WHERE timetables.day = %s AND timetables.month = %s AND timetables.year = %s AND timetables.id = periods.timetables_id AND periods.idroom = %s AND periods.idteacher = %s"
     cursor.execute(query, (day,month,year,idroom,idteacher))
     for period in cursor:
-        if int(accessHour) >= int(period['startHour']) and int(accessHour) < int(period['endHour']):
-            canAcess = True
-    return canAcess
+        sHour=period['startHour'].split(":")
+        eHour=period['endHour'].split(":")
+        if int(accessHour[0])>= int(sHour[0]) and int(accessHour[0])<=int(eHour[0]):
+            if(int(accessHour[0])==int(sHour[0]) or int(accessHour[0])==int(eHour[0])):
+                if(int(accessHour[1])>= int(sHour[1]) and int(accessHour[1])<int(eHour[1])):
+                    canAccess = True
+    return canAccess
 
 
-#Selecionar sala apartir do dia, mes e ano
-#Verificar o id da entidade no inicio
+
 def checkRoomAvailability(tid,rid,sHour,eHour):
     isOcupied = False
-    query="SELECT startHour, endHour FROM periods WHERE timetables_id = %s AND idroom = %s" #AND startHour = %s AND endHour = %s"
+    isOcupiedHours = False
+    isOcupiedMins = False
+    sHour=sHour.split(":")
+    eHour=eHour.split(":")
+    query="SELECT startHour, endHour FROM periods WHERE timetables_id = %s AND idroom = %s"
     cursor.execute(query,(tid,rid))
     rows = cursor.fetchall()
     numrows = int(cursor.rowcount)
     if (numrows == 0):
-        print("No periods in that day")
+        print("[Timetable Manager] No periods in that day")
     else:
         for row in rows:
-            _sHour = int(row['startHour'])
-            _eHour = int(row['endHour'])
-            for ocupiedHours in range(_sHour,_eHour):
-                for desiredHours in range(int(sHour),int(eHour)):
+            _sHour = row['startHour'].split(":")
+            _eHour = row['endHour'].split(":")
+            for ocupiedHours in range(int(_sHour[0]),int(_eHour[0])):
+                if isOcupiedHours == True:
+                    break
+                for desiredHours in range(int(sHour[0]),int(eHour[0])):
+                    #print(ocupiedHours,desiredHours)
                     if ocupiedHours==desiredHours:
-                        isOcupied = True
+                        isOcupiedHours = True
+            if _sHour[1]>_eHour[1]:
+                ocuRange= range(int(_eHour[1]), int(_sHour[1]))
+            elif _sHour[1]<_eHour[1]:
+                ocuRange=range(int(_sHour[1]), int(_eHour[1]))
+            else:
+                isOcupiedMins = True
+            for ocupiedMinutes in ocuRange:
+                if isOcupiedMins == True or isOcupiedHours ==False:
+                    break
+                else:
+                    if sHour[1]>= eHour[1]:
+                        desRange=range(int(eHour[1]),int(sHour[1]))
+                    else:
+                        desRange= range(int(sHour[1]),int(eHour[1]))
+                    for desiredMinutes in desRange:
+                        #print(ocupiedMinutes,desiredMinutes)
+                        if ocupiedMinutes == desiredMinutes:
+                            isOcupiedMins = True
 
+        print (isOcupiedHours,isOcupiedMins)
+    if (isOcupiedHours and isOcupiedMins) == True:
+        isOcupied = True
     return not isOcupied #Devolve se esta disponivel ou nao
+
 
 def bookRoom(day,month,year,id_teacher,id_room,startHour,endHour):
     #Verifica se ja existe um timetable para tal dia
@@ -75,14 +108,15 @@ def bookRoom(day,month,year,id_teacher,id_room,startHour,endHour):
         print("[Timetable Manager] Room booked with sucess.")
     #caso nao esteja envia msg de erro
     else:
-        print("[Timetable Manager] Room is not available to be booked.")#mandar msg de erro
+        print("[Timetable Manager] Room is not available to be booked.")
     return available
 
 
 
 def getTimetableRoom(roomid,day,month,year):
-    query = ("SELECT periods.startHour, periods.endHour FROM timetables, periods "
-             "WHERE  timetables.day=%s AND timetables.month = %s AND timetables.year = %s AND periods.timetables_id = timetables.id AND periods.idroom = %s ")
+    print(roomid,"-",day,"-",month,"-",year)
+    query = ("SELECT periods.startHour, periods.endHour, periods.idteacher FROM timetables, periods "
+             "WHERE  timetables.day=%s AND timetables.month = %s AND timetables.year = %s AND periods.timetables_id = timetables.id AND periods.idroom = %s ORDER BY periods.startHour DESC")
     cursor.execute(query,(day,month,year,roomid))
     data = cursor.fetchall()
     return data
@@ -133,12 +167,14 @@ class ThreadedServer(object):
            # try:
                 data = client.recv(max_size)
                 if data:
+                    print(data)
                     data = data.decode('utf-8')
                     data = json.loads(data)
                     operation = data['operation']
                     print("[Timetable Manager] Message received: ", data)
                     if operation == "access":
-                        canAccess = checkAccessTeacher(data['data']['day'],data['data']['month'],data['data']['year'],data['data']['hours'],data['data']['roomid'],data['data']['userid'])
+                        hours=str(data['data']['hours']) + ":" + str(data['data']['minutes'])
+                        canAccess = checkAccessTeacher(data['data']['day'],data['data']['month'],data['data']['year'],hours,data['data']['roomid'],data['data']['userid'])
                         if canAccess == True:
                             print("[Timetable Manager] Acesso garantido na sala ",data['data']['roomid']," ao utilizador ",data['data']['userid'], " at ", datetime.now())
                             result = "success"

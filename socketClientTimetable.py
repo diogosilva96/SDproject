@@ -43,14 +43,17 @@ while True:
         #print("Mensagem enviada: ",message)
         client.sendall(message)
     if inf == "book":
-        day = '1'
-        month = '12'
-        year = '2019'
-        id_teacher = '2'
+        day = '2'
+        month = '1'
+        year = '2018'
+        id_teacher = '1'
         id_room = '1'
-        startHour = '23'
-        endHour = '24'
-        message = '{"source": "cardreader" ,"destination": "timetables" ,"operation":"bookRoom", "data":{"userid":'+ id_teacher + ', "roomid":'+ id_room+' ,"day":'+day+' ,"month":'+month+' ,"year":'+year+' ,"startHour":'+startHour+' ,"endHour":'+endHour+'}}'
+        startHour = "9:00"
+        endHour = "11:30"
+        message={'source': 'asd', 'destination': 'wow',
+         'operation': 'bookRoom',
+         'data': {'userid':id_teacher,'roomid':id_room,'day':day,'month':month,'year':year,'startHour':startHour,'endHour':endHour}}
+        message=json.dumps(message)
         message = message.encode('utf-8')
         client.sendall(message)
     #client.close()
