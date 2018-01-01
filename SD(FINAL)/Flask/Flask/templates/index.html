@@ -21,13 +21,13 @@
 
 </head>
 <body>
-    <div class="container-fluid fundo" style="height: 100%;">
+    <div class="container-fluid" style="height: 100%;">
         <div class="row">
             <div class="col-lg-12">
                 <nav class="navbar">
                     <div class="container">
                         <div class="col-lg-12 text-center">
-                            <img src="../static/uma.gif">
+                            <a href="/"><img src="../../../../../../Desktop/SDprojectSD/SD(FINAL)/Flask/Flask/static/uma.gif"></a>
                         </div>
                     </div>
                 </nav>
@@ -50,6 +50,17 @@
                      </form>
                 </div>
             </div>
+            {% if name == 'False' %}
+                <div class="row text-center">
+                    <div class="col-lg-3"></div>
+                    <div class="col-lg-6 text-center">
+                            <div style="width:100%;background: red;border-radius: 25px;padding: 15px 15px;margin: 15px 15px;">
+                                <b>Os dados nao estao corretos</b>
+                            </div>
+                    </div>
+                    <div class="col-lg-3"></div>
+                </div>
+            {% endif %}
         </div>
     </div>
 </body>

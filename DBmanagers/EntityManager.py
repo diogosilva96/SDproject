@@ -96,22 +96,21 @@ def getUserIDs(number):
 
 
 def getTeachersInfo():
-    query = ("SELECT teachers.id,persons.name,persons.number FROM teachers,persons WHERE teachers.Person_id = persons.id")
+    query = ("SELECT persons.id,persons.name,persons.number FROM teachers,persons WHERE teachers.Person_id = persons.id")
     cursor.execute(query)
     data = cursor.fetchall()
     return data
 
 
-def insertEmployee(name,email,phone,number,role):
+def insertEmployee(name,email,phone,number):
     employeeInserted = False
     person_id = insertPerson(name,email,phone,number)
     if person_id == "used":
         print("[Entity Manager] Employee was not inserted, number already in use.")
         employeeInserted = False
     else:
-        add_employee = ("INSERT INTO employees (persons_id,role) VALUES (%s,%s)")
-        data_employee=(person_id,role)
-        cursor.execute(add_employee,data_employee)
+        add_employee = ("INSERT INTO employees (persons_id) VALUES (%s)")
+        cursor.execute(add_employee,(person_id,))
         conn.commit()
         print("[Entity Manager] Employee sucessfully added.")
         employeeInserted = True
@@ -159,18 +158,28 @@ def insertRoom(number,number_places,description):
 
 def checkAccessRoom(userid,roomid):
     canAccess = False
-    query = "SELECT * FROM persons_has_rooms WHERE rooms_id =%s AND persons_id = %s"
-    data_room = (roomid,userid)
-    cursor.execute(query,data_room)
-    cursor.fetchall()
-    numrows = int(cursor.rowcount)
-    if (numrows > 0):
-        canAccess = True
 
-    print(canAccess)
+    query="SELECT persons.number FROM persons WHERE persons.id = %s"
+    cursor.execute(query,(userid,))
+    data={}
+    for number in cursor:
+        data=number
+    if data != {}:
+        useridinfo = getUserIDs(data['number'])
+        if 'employeeid' in useridinfo:
+            canAccess=True
+        else:
+            query = "SELECT * FROM persons_has_rooms WHERE rooms_id =%s AND persons_id = %s"
+            data_room = (roomid, userid)
+            cursor.execute(query, data_room)
+            cursor.fetchall()
+            numrows = int(cursor.rowcount)
+            if (numrows > 0):
+                canAccess = True
+    else:
+        canAccess=False
+
     return canAccess
-
-
 
 
 def getAllRooms():
@@ -223,7 +232,7 @@ class ThreadedServer(object):
                         else:
                             result = 'denied'
                     if operation == "registerEmployee":
-                        employeeInserted = insertEmployee(data['data']['name'], data['data']['email'],data['data']['phone'], data['data']['number'], data['data']['role'])
+                        employeeInserted = insertEmployee(data['data']['name'], data['data']['email'],data['data']['phone'], data['data']['number'])
                         if employeeInserted == True:
                             result = getUserIDs(data['data']['number'])
                         else:
@@ -243,9 +252,12 @@ class ThreadedServer(object):
                             result = "success"
                         else:
                             result = "denied"
-                    if operation == "checkAccess":
+                    if operation == "access":
                         canAccess = checkAccessRoom(data['data']['userid'],data['data']['roomid'])
-                        result = canAccess
+                        if canAccess == True:
+                            result = "success"
+                        else:
+                            result= "denied"
                     if operation == "getAllRooms":
                         data['data']={} # alterar
                         result = getAllRooms()
@@ -260,7 +272,6 @@ class ThreadedServer(object):
                     else:
                         message ={'source':data['destination'],'destination':data['source'],'operation':data['operation'],'data':data['data'],'result':result}
 
-                    print(message)
                     message = json.dumps(message)
                     message = message.encode('utf-8')
                     response = message

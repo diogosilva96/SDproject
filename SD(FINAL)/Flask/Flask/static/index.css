@@ -9,6 +9,20 @@
     background-size: cover;
 }
 
+body{
+    background-image: url("../static/edificio.jpg");
+    background-size: cover !important;
+}
+
+.col-lg-3{
+
+}
+
+th,td{
+    padding: 0px 30px;
+    border: 1px solid black;
+}
+
 
 form{
     background-color: aliceblue;
@@ -26,5 +40,5 @@ form{
 }
 
 #formSection{
-    margin-top: 100px;
+    margin-top: 50px;
 }

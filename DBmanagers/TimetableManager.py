@@ -8,68 +8,63 @@ conn = mysql.connector.connect(host="localhost",user='root', database='timetable
 cursor = conn.cursor(dictionary=True)
 
 def checkAccessTeacher(day,month,year,accessHour,idroom,idteacher):
-    accessHour
-    canAccess = False
-    accessHour=accessHour.split(":")
+    canAcess = False
     query="SELECT DISTINCT periods.startHour, periods.endHour FROM periods,timetables WHERE timetables.day = %s AND timetables.month = %s AND timetables.year = %s AND timetables.id = periods.timetables_id AND periods.idroom = %s AND periods.idteacher = %s"
     cursor.execute(query, (day,month,year,idroom,idteacher))
     for period in cursor:
         sHour=period['startHour'].split(":")
         eHour=period['endHour'].split(":")
-        if int(accessHour[0])>= int(sHour[0]) and int(accessHour[0])<=int(eHour[0]):
-            if(int(accessHour[0])==int(sHour[0]) or int(accessHour[0])==int(eHour[0])):
-                if(int(accessHour[1])>= int(sHour[1]) and int(accessHour[1])<int(eHour[1])):
-                    canAccess = True
-    return canAccess
+        if int(accessHour) >= int(sHour[0]) and int(accessHour) < int(eHour[0]):#ver minutos
+            canAcess = True
+    return canAcess
+
 
 
 
 def checkRoomAvailability(tid,rid,sHour,eHour):
-    isOcupied = False
-    isOcupiedHours = False
-    isOcupiedMins = False
     sHour=sHour.split(":")
     eHour=eHour.split(":")
-    query="SELECT startHour, endHour FROM periods WHERE timetables_id = %s AND idroom = %s"
+    if sHour[1] == "30":
+        sHourFloat = int(sHour[0]) + 0.5
+    else:
+        sHourFloat = int(sHour[0])
+    if eHour[1] == "30":
+        eHourFloat = int(eHour[0]) + 0.5
+    else:
+        eHourFloat = int(eHour[0])
+    query="SELECT startHour, endHour FROM periods WHERE timetables_id = %s AND idroom = %s" #AND startHour = %s AND endHour = %s"
     cursor.execute(query,(tid,rid))
     rows = cursor.fetchall()
     numrows = int(cursor.rowcount)
-    if (numrows == 0):
+    if numrows == 0:
         print("[Timetable Manager] No periods in that day")
+        return True
     else:
         for row in rows:
             _sHour = row['startHour'].split(":")
             _eHour = row['endHour'].split(":")
-            for ocupiedHours in range(int(_sHour[0]),int(_eHour[0])):
-                if isOcupiedHours == True:
-                    break
-                for desiredHours in range(int(sHour[0]),int(eHour[0])):
-                    #print(ocupiedHours,desiredHours)
-                    if ocupiedHours==desiredHours:
-                        isOcupiedHours = True
-            if _sHour[1]>_eHour[1]:
-                ocuRange= range(int(_eHour[1]), int(_sHour[1]))
-            elif _sHour[1]<_eHour[1]:
-                ocuRange=range(int(_sHour[1]), int(_eHour[1]))
+            if _sHour[1] == "30":
+                _sHourFloat = int(_sHour[0])+0.5
             else:
-                isOcupiedMins = True
-            for ocupiedMinutes in ocuRange:
-                if isOcupiedMins == True or isOcupiedHours ==False:
-                    break
-                else:
-                    if sHour[1]>= eHour[1]:
-                        desRange=range(int(eHour[1]),int(sHour[1]))
-                    else:
-                        desRange= range(int(sHour[1]),int(eHour[1]))
-                    for desiredMinutes in desRange:
-                        #print(ocupiedMinutes,desiredMinutes)
-                        if ocupiedMinutes == desiredMinutes:
-                            isOcupiedMins = True
+                _sHourFloat = int(_sHour[0])
+            if _eHour[1] == "30":
+                _eHourFloat = int(_eHour[0])+0.5
+            else:
+                _eHourFloat = int(_eHour[0])
+            if sHourFloat == _sHourFloat or eHourFloat == _eHourFloat :
+                # cantSchedule = False
+                return False
+            elif sHourFloat > _sHourFloat:
+                if _eHourFloat > sHourFloat:
+                    # cantSchedule = False
+                    return False
+            else:
+                if eHourFloat > _sHourFloat:
+                    # cantSchedule = False
+                    return False
+        return True
 
-        print (isOcupiedHours,isOcupiedMins)
-    if (isOcupiedHours and isOcupiedMins) == True:
-        isOcupied = True
-    return not isOcupied #Devolve se esta disponivel ou nao
+
 
 
 def bookRoom(day,month,year,id_teacher,id_room,startHour,endHour):
@@ -93,7 +88,6 @@ def bookRoom(day,month,year,id_teacher,id_room,startHour,endHour):
         cursor.execute(query, (day, month, year))
         for timetable in cursor:
             lid=timetable['id']
-            print(lid)
 
     add_period = ("INSERT INTO periods "
                   "(startHour,endHour, idteacher , idroom , timetables_id)"
@@ -167,14 +161,12 @@ class ThreadedServer(object):
            # try:
                 data = client.recv(max_size)
                 if data:
-                    print(data)
                     data = data.decode('utf-8')
                     data = json.loads(data)
                     operation = data['operation']
                     print("[Timetable Manager] Message received: ", data)
                     if operation == "access":
-                        hours=str(data['data']['hours']) + ":" + str(data['data']['minutes'])
-                        canAccess = checkAccessTeacher(data['data']['day'],data['data']['month'],data['data']['year'],hours,data['data']['roomid'],data['data']['userid'])
+                        canAccess = checkAccessTeacher(data['data']['day'],data['data']['month'],data['data']['year'],data['data']['hours'],data['data']['roomid'],data['data']['userid'])
                         if canAccess == True:
                             print("[Timetable Manager] Acesso garantido na sala ",data['data']['roomid']," ao utilizador ",data['data']['userid'], " at ", datetime.now())
                             result = "success"

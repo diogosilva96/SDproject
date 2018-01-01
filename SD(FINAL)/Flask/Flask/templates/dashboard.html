@@ -24,24 +24,25 @@
 
 </head>
 <body>
-    <div class="container-fluid fundo" style="height: 100%;">
+    <div class="container-fluid">
         <div class="row">
             <div class="col-lg-12">
                 <nav class="navbar">
                     <div class="container">
                         <div class="col-lg-12 text-center">
-                            <img src="../static/uma.gif">
+                            <a href="/dashboard"><img width="20%" src="../../../../../../Desktop/SDprojectSD/SD(FINAL)/Flask/Flask/static/uma.gif"></a>
                         </div>
                     </div>
                 </nav>
             </div>
         </div>
 
-        <div class="container" id="formSection" style="background-color: aliceblue;border-radius: 25px;">
+        <div class="container" id="formSection" style="background-color: aliceblue;border-radius: 25px;margin-bottom: 20px;">
             <div class="row">
                 <!-- Schedule -->
-                <div class="col-lg-4">
-                    <div class="container text-center margin-box">
+                {% if role == "teacher" %}
+                    <div class="col-lg-4">
+                    <div class="container text-center">
                         <div class="row icon-margin">
                             <div class="col-lg-12">
                                 <i class="fa fa-4x fa-calendar" aria-hidden="true"></i>
@@ -54,42 +55,109 @@
                         </div>
                     </div>
                 </div>
-                <!-- Add Time-->
-                <div class="col-lg-4">
-                    <div class="container text-center margin-box">
+                    <!-- Add Time-->
+                    <div class="col-lg-4">
+                        <div class="container text-center">
+                            <div class="row icon-margin">
+                                <div class="col-lg-12">
+                                    <i class="fa fa-4x fa-exchange" aria-hidden="true"></i>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <a href="/bookRoom"><button type="button" class="btn btn-primary btn-lg">Book Room</button></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--Settings-->
+                    <div class="col-lg-4">
+                        <div class="container text-center">
+                            <div class="row icon-margin">
+                                <div class="col-lg-12">
+                                    <i class="fa fa-4x fa-cogs" aria-hidden="true"></i>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <a href="/settings"><button type="button" class="btn btn-primary btn-lg">Change Settings</button></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="col-lg-6">
+                    <div class="container text-center">
                         <div class="row icon-margin">
                             <div class="col-lg-12">
-                                <i class="fa fa-4x fa-exchange" aria-hidden="true"></i>
+                                <i class="fa fa-4x fa-calendar" aria-hidden="true"></i>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-lg-12">
-                                <a href="/bookRoom"><button type="button" class="btn btn-primary btn-lg">Book Room</button></a>
+                                <a href="/schedule"><button type="button" class="btn btn-primary btn-lg">See Schedule</button></a>
                             </div>
                         </div>
                     </div>
                 </div>
-                <!--Settings-->
-                <div class="col-lg-4">
-                    <div class="container text-center margin-box">
-                        <div class="row icon-margin">
-                            <div class="col-lg-12">
-                                <i class="fa fa-4x fa-cogs" aria-hidden="true"></i>
+                    <!--Settings-->
+                    <div class="col-lg-6">
+                        <div class="container text-center">
+                            <div class="row icon-margin">
+                                <div class="col-lg-12">
+                                    <i class="fa fa-4x fa-cogs" aria-hidden="true"></i>
+                                </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <a href="/settings"><button type="button" class="btn btn-primary btn-lg">Change Settings</button></a>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <a href="/settings"><button type="button" class="btn btn-primary btn-lg">Change Settings</button></a>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                {% endif %}
             </div>
             <div class="row text-center">
                 <div class="col-lg-12" style="margin-bottom: 25px;">
-                    <a href="/"><button class="btn btn-primary">Exit session</button></a>
+                    <form method="POST">
+                        <input type="hidden" name="exit" value="">
+                        <button class="btn btn-primary">Exit session</button>
+                    </form>
                 </div>
             </div>
+            {% if name == 'False' %}
+                <div class="row text-center">
+                    <div class="col-lg-3"></div>
+                    <div class="col-lg-6 text-center">
+                            <div style="width:100%;background: red;border-radius: 25px;padding: 15px 15px;margin: 15px 15px;">
+                                <b>A accao nao foi bem sucedida</b>
+                            </div>
+                    </div>
+                    <div class="col-lg-3"></div>
+                </div>
+            {% endif %}
+            {% if name == 'True' %}
+                <div class="row text-center">
+                    <div class="col-lg-3"></div>
+                    <div class="col-lg-6 text-center">
+                            <div style="width:100%;background: green;border-radius: 25px;padding: 15px 15px;margin: 15px 15px;">
+                                <b>A accao foi bem sucedida</b>
+                            </div>
+                    </div>
+                    <div class="col-lg-3"></div>
+                </div>
+            {% endif %}
+            {% if login == 'True' %}
+                <div class="row text-center">
+                    <div class="col-lg-3"></div>
+                    <div class="col-lg-6 text-center">
+                            <div style="width:100%;background: royalblue;border-radius: 25px;padding: 15px 15px;margin: 15px 15px;">
+                                <b>Bem Vindo</b>
+                            </div>
+                    </div>
+                    <div class="col-lg-3"></div>
+                </div>
+            {% endif %}
         </div>
 
 

@@ -15,6 +15,7 @@ def insertLog(description):
     cursor.execute(add_log, (description,))
     conn.commit()
 
+
 class ThreadedServer(object):
     def __init__(self, host, port):
         self.host = host
