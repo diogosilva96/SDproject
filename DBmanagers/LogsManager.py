@@ -1,10 +1,8 @@
 import socket
 import threading
 from datetime import datetime
-import pika
 import mysql.connector
 
-#DB CONNECTION #
 conn = mysql.connector.connect(host="localhost",user='root', database='logs')
 cursor = conn.cursor()
 
@@ -13,24 +11,49 @@ def insertLog(description):
     add_log = ("INSERT INTO logs "
                       "(description)"
                       "VALUES (%s)")
+    print('log: '+description+' was inserted in logs db')
     cursor.execute(add_log, (description,))
     conn.commit()
 
-connection=pika.BlockingConnection(pika.ConnectionParameters('localhost'))
-channel=connection.channel()
-channel.queue_declare(queue='queue_logs', durable=True)
-print('[Logs Manager]Waiting for messages. Exit with ctrl+c')
 
-def callback(ch,method,properties,body):
-    message = body
-    message = message.decode('utf-8')
-    print("[Logs Manager] Message received: ",message)
-    insertLog(message)
-    print("[Logs Manager] Log was inserted in database.")
-    ch.basic_ack(delivery_tag=method.delivery_tag)
+class ThreadedServer(object):
+    def __init__(self, host, port):
+        self.host = host
+        self.port = port
+        self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.server.bind((self.host, self.port))
+        print('Starting server at', datetime.now())
+        print('Waiting for a client to call.')
 
-channel.basic_qos(prefetch_count=1)
-channel.basic_consume(callback,queue='queue_logs')
 
-channel.start_consuming()
+    def listen(self):
+        self.server.listen(5)
+        while True:
+            client, address = self.server.accept()
+            print('Client called')
+            #client.settimeout(60)
+            threading.Thread(target = self.listenToClient,args = (client,address)).start()
 
+    def listenToClient(self, client, address):
+        max_size = 1024
+        while True:
+            try:
+                data = client.recv(max_size)
+                if data:
+                    data=data.decode('utf-8')
+                    print(data)
+                    insertLog(data)
+                    #response = b'data received'
+                    #client.send(response)
+
+            except:
+                client.close()
+                print('socket closed')
+                return False
+
+
+
+if __name__ == "__main__":
+    while True:
+        ThreadedServer('localhost',8003).listen()

@@ -1,0 +1,44 @@
+.fundo{
+    position: absolute;
+    top: 0;
+    left: 0;
+    /*height: 100%;*/
+    width: 100%;
+    background-image: url("../static/edificio.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+body{
+    background-image: url("../static/edificio.jpg");
+    background-size: cover !important;
+}
+
+.col-lg-3{
+
+}
+
+th,td{
+    padding: 0px 30px;
+    border: 1px solid black;
+}
+
+
+form{
+    background-color: aliceblue;
+    padding: 50px;
+    border-radius: 25px;
+}
+
+.icon-margin{
+    margin-top: 100px;
+    margin-bottom: 50px;
+}
+
+.margin-box{
+    margin-bottom: 100px;
+}
+
+#formSection{
+    margin-top: 50px;
+}

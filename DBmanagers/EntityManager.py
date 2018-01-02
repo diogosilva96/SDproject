@@ -10,14 +10,12 @@ cursor = conn.cursor(dictionary=True)
 
 
 
-def insertPerson(name,mail,phone,number,password):
+def insertPerson(name,mail,phone,number):
     numberUsed=checkNumberUsed(number,"person")
     if numberUsed == False:
-        add_person=("INSERT INTO persons "
-                   "(name, email, phone, number, password) "
-                   "VALUES (%s, %s, %s, %s, %s)")
+        add_person=("INSERT INTO persons (name, email, phone, number) VALUES (%s, %s, %s, %s)")
 
-        data_person=(name,mail,phone,number,password)
+        data_person=(name,mail,phone,number)
         cursor.execute(add_person,data_person)
         lid = cursor.lastrowid
     else:
@@ -43,9 +41,9 @@ def checkNumberUsed(number,type):
         numberUsed = False
     return numberUsed
 
-def insertTeacher(name,email,phone,number,password):
+def insertTeacher(name,email,phone,number):
     teacherInserted = False
-    person_id = insertPerson(name,email,phone,number,password)
+    person_id = insertPerson(name,email,phone,number)
     if person_id == "used":
         print("[Entity Manager] Teacher was not inserted, number already in use!")
         teacherInserted = False
@@ -72,57 +70,57 @@ def getUserData(number): ## TERMINAR
 
 def getUserIDs(number):
     foundRole = False
-    query="SELECT persons.id AS user_id,teachers.id AS teacher_id FROM persons,teachers WHERE persons.number = %s AND persons.id = teachers.Person_id"
+    query="SELECT persons.id AS userid,teachers.id AS teacherid FROM persons,teachers WHERE persons.number = %s AND persons.id = teachers.Person_id"
     data_teacher = (number,)
     cursor.execute(query,data_teacher)
-    rows = cursor.fetchall()
-    numrows = int(cursor.rowcount)
-    if numrows>0:
+    for teacher in cursor:
         foundRole = True
-        useridinfo = rows
-    else:
-        query = "SELECT persons.id AS user_id,students.id AS student_id FROM persons,students WHERE persons.number = %s AND persons.id = students.Person_id"
+        useridinfo = teacher
+    if (foundRole == False):
+        query = "SELECT persons.id AS userid,students.id AS studentid FROM persons,students WHERE persons.number = %s AND persons.id = students.Person_id"
         data_teacher = (number,)
         cursor.execute(query, data_teacher)
-        rows = cursor.fetchall()
-        numrows = int(cursor.rowcount)
-    if numrows>0 and foundRole == False:
-        foundRole = True
-        useridinfo = rows
-    else:
-        query = "SELECT persons.id AS user_id,employees.id AS employee_id FROM persons,employees WHERE persons.number = %s AND persons.id = employees.persons_id"
+        for student in cursor:
+            foundRole = True
+            useridinfo = student
+    if (foundRole == False):
+        query = "SELECT persons.id AS userid,employees.id AS employeeid FROM persons,employees WHERE persons.number = %s AND persons.id = employees.persons_id"
         data_employee = (number,)
         cursor.execute(query,data_employee)
-        rows = cursor.fetchall()
-        numrows = int(cursor.rowcount)
-    if numrows>0 and foundRole == False:
-        foundRole = True
-        useridinfo = rows
-    elif foundRole == False:
+        for employee in cursor:
+            foundRole = True
+            useridinfo = employee
+    if (foundRole == False):
         useridinfo = "denied"
     return useridinfo
 
 
-def insertEmployee(name,email,phone,number,password,role):
+def getTeachersInfo():
+    query = ("SELECT persons.id,persons.name,persons.number FROM teachers,persons WHERE teachers.Person_id = persons.id")
+    cursor.execute(query)
+    data = cursor.fetchall()
+    return data
+
+
+def insertEmployee(name,email,phone,number):
     employeeInserted = False
-    person_id = insertPerson(name,email,phone,number,password)
+    person_id = insertPerson(name,email,phone,number)
     if person_id == "used":
         print("[Entity Manager] Employee was not inserted, number already in use.")
         employeeInserted = False
     else:
-        add_employee = ("INSERT INTO employees (persons_id,role) VALUES (%s,%s)")
-        data_employee=(person_id,role)
-        cursor.execute(add_employee,data_employee)
+        add_employee = ("INSERT INTO employees (persons_id) VALUES (%s)")
+        cursor.execute(add_employee,(person_id,))
         conn.commit()
         print("[Entity Manager] Employee sucessfully added.")
         employeeInserted = True
     return employeeInserted
 
-def insertStudent(name,email,phone,number,password):
+def insertStudent(name,email,phone,number):
     studentInserted = False
-    person_id = insertPerson(name, email, phone, number, password)
+    person_id = insertPerson(name, email, phone, number)
     if person_id == "used":
-        print("[Entity Manager] Student was not inserted, number already in use!")
+        print("[Entity Manager] Student was not inserted, number is already in use!")
         teacherInserted = False
     else:
         #adicionar course a students??
@@ -136,9 +134,9 @@ def insertStudent(name,email,phone,number,password):
         studentInserted = True
     return studentInserted
 
-def editUserInfo(id,name,email,phone,password):
-    queryupdate= "UPDATE persons SET name = %s, email = %s, phone =%s, password =%s WHERE id = %s"
-    cursor.execute(queryupdate, (name,email,phone,password,id))
+def editUserInfo(id,name,email,phone):
+    queryupdate= "UPDATE persons SET name = %s, email = %s, phone =%s WHERE id = %s"
+    cursor.execute(queryupdate, (name,email,phone,id))
     conn.commit()
     print("[Entity Manager] User information sucessfully edited.")#EFETUAR CHECKS se for inserido menos campos
 
@@ -146,7 +144,6 @@ def editUserInfo(id,name,email,phone,password):
 
 def insertRoom(number,number_places,description):
     room_number_used = checkNumberUsed(number,"room")
-    room_inserted = False
     if room_number_used == False:
         add_room = ("INSERT INTO rooms "
                     "(number, number_places,description)"
@@ -161,18 +158,28 @@ def insertRoom(number,number_places,description):
 
 def checkAccessRoom(userid,roomid):
     canAccess = False
-    query = "SELECT * FROM persons_has_rooms WHERE rooms_id =%s AND persons_id = %s"
-    data_room = (roomid,userid)
-    cursor.execute(query,data_room)
-    cursor.fetchall()
-    numrows = int(cursor.rowcount)
-    if (numrows > 0):
-        canAccess = True
 
-    print(canAccess)
+    query="SELECT persons.number FROM persons WHERE persons.id = %s"
+    cursor.execute(query,(userid,))
+    data={}
+    for number in cursor:
+        data=number
+    if data != {}:
+        useridinfo = getUserIDs(data['number'])
+        if 'employeeid' in useridinfo:
+            canAccess=True
+        else:
+            query = "SELECT * FROM persons_has_rooms WHERE rooms_id =%s AND persons_id = %s"
+            data_room = (roomid, userid)
+            cursor.execute(query, data_room)
+            cursor.fetchall()
+            numrows = int(cursor.rowcount)
+            if (numrows > 0):
+                canAccess = True
+    else:
+        canAccess=False
+
     return canAccess
-
-
 
 
 def getAllRooms():
@@ -212,32 +219,32 @@ class ThreadedServer(object):
                     print("[Entity Manager] Message received: ", data)
                     operation = data['operation']
                     if operation == "registerTeacher":
-                        teacherInserted=insertTeacher(data['data']['name'],data['data']['email'],data['data']['phone'],data['data']['number'],data['data']['password'])
+                        teacherInserted=insertTeacher(data['data']['name'],data['data']['email'],data['data']['phone'],data['data']['number'])
                         if teacherInserted == True:
-                            result = 'success'
+                            result = getUserIDs(data['data']['number'])
                         else:
                             result = 'denied'
 
                     if operation == "registerStudent":
-                        studentInserted = insertStudent(data['data']['name'], data['data']['email'],data['data']['phone'], data['data']['number'],data['data']['password'])
+                        studentInserted = insertStudent(data['data']['name'], data['data']['email'],data['data']['phone'], data['data']['number'])
                         if studentInserted == True:
-                            result = 'success'
+                            result = getUserIDs(data['data']['number'])
                         else:
                             result = 'denied'
                     if operation == "registerEmployee":
-                        employeeInserted = insertEmployee(data['data']['name'], data['data']['email'],data['data']['phone'], data['data']['number'],data['data']['password'], data['data']['role'])
+                        employeeInserted = insertEmployee(data['data']['name'], data['data']['email'],data['data']['phone'], data['data']['number'])
                         if employeeInserted == True:
-                            result = 'success'
+                            result = getUserIDs(data['data']['number'])
                         else:
                            result = 'denied'
                     if operation == "getUserIDs":
                         result=getUserIDs(data['data']['number'])
 
                     if operation == "editUserInfo":
-                        editUserInfo(data['data']['userid'],data['data']['name'],data['data']['email'],data['data']['phone'],data['data']['password'])
-                        result ='sucess'
+                        editUserInfo(data['data']['userid'],data['data']['name'],data['data']['email'],data['data']['phone'])
+                        result ='success'
 
-                    if operation == "getUserData":# TEstar
+                    if operation == "getUserData":
                         result = getUserData(data['data']['number'])
                     if operation == "insertRoom":
                         room_inserted = insertRoom(data['data']['number'],data['data']['numberplaces'],data['data']['description'])
@@ -245,25 +252,32 @@ class ThreadedServer(object):
                             result = "success"
                         else:
                             result = "denied"
-                    if operation == "checkAccess":
+                    if operation == "access":
                         canAccess = checkAccessRoom(data['data']['userid'],data['data']['roomid'])
-                        result = canAccess
+                        if canAccess == True:
+                            result = "success"
+                        else:
+                            result= "denied"
                     if operation == "getAllRooms":
                         data['data']={} # alterar
                         result = getAllRooms()
+                    if operation == "getTeachersInfo":
+                        data['data']={}
+                        result=getTeachersInfo()
 
-                    #operation get all users
-                    #operation insert person room
 
+                    if data['data']=={}:
+                        message = {'source': data['destination'], 'destination': data['source'],
+                                   'operation': data['operation'], 'result': result}
+                    else:
+                        message ={'source':data['destination'],'destination':data['source'],'operation':data['operation'],'data':data['data'],'result':result}
 
-
-                    message ={'source':data['destination'],'destination':data['source'],'operation':data['operation'],'data':data['data'],'result':result}
                     message = json.dumps(message)
                     message = message.encode('utf-8')
                     response = message
                     client.send(response)
                 else:
-                    response = "operação errada"
+                    response = "Wrong Operation"
                     response = response.encode('utf-8')
                     client.send(response)
 
@@ -276,10 +290,8 @@ class ThreadedServer(object):
 
 if __name__ == "__main__":
     while True:
-        ThreadedServer('localhost',6789).listen()
+        ThreadedServer('localhost',8001).listen()
 
 
 
 
-cursor.close()
-conn.close()

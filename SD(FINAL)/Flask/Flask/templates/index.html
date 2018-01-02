@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>UMA - Platform</title>
+     <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <!-- Popper JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.6/umd/popper.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js"></script>
+
+</head>
+<body>
+    <div class="container-fluid" style="height: 100%;">
+        <div class="row">
+            <div class="col-lg-12">
+                <nav class="navbar">
+                    <div class="container">
+                        <div class="col-lg-12 text-center">
+                            <a href="/"><img src="../../../../../../Desktop/SDprojectSD/SD(FINAL)/Flask/Flask/static/uma.gif"></a>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </div>
+        <div class="container" id="formSection">
+            <div class="row">
+                <div class="col-lg-12">
+                     <form method="POST">
+                      <div class="form-group">
+                        <label for="username"><b>Username:</b></label>
+                        <input type="text" class="form-control" id="username" name="username">
+                      </div>
+                      <div class="form-group">
+                        <label for="password"><b>Password:</b></label>
+                        <input type="password" class="form-control" name="password" id="password">
+                      </div>
+                        <button type="submit" class="btn btn-primary">Submit</button><br>
+                         <a href="/signUp">If you dont have a account, sign up!</a>
+                     </form>
+                </div>
+            </div>
+            {% if name == 'False' %}
+                <div class="row text-center">
+                    <div class="col-lg-3"></div>
+                    <div class="col-lg-6 text-center">
+                            <div style="width:100%;background: red;border-radius: 25px;padding: 15px 15px;margin: 15px 15px;">
+                                <b>Os dados nao estao corretos</b>
+                            </div>
+                    </div>
+                    <div class="col-lg-3"></div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

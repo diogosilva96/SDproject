@@ -29,7 +29,6 @@ CREATE TABLE IF NOT EXISTS `enteties`.`persons` (
   `phone` VARCHAR(45) NOT NULL,
   `lastUpdate` TIMESTAMP  NOT NULL,
   `number` VARCHAR(45) NOT NULL,
-  `password` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`id`))
 ENGINE = InnoDB;
 
@@ -117,7 +116,6 @@ DROP TABLE IF EXISTS `enteties`.`employees` ;
 
 CREATE TABLE IF NOT EXISTS `enteties`.`employees` (
   `id` INT NOT NULL AUTO_INCREMENT,
-  `role` VARCHAR(45) NOT NULL,
   `persons_id` INT NOT NULL,
   `lastUpdate` TIMESTAMP  NOT NULL,
   PRIMARY KEY (`id`, `persons_id`),

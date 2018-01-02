@@ -8,7 +8,7 @@ channel = connection.channel()
 channel.queue_declare(queue='queue_server',durable=True) #fila persistente (durable)!
 
 def buildMessage():
-    print("[Card Reader] Please type de user id in the format [userid,roomid]")
+    print("[Card Reader] Please type the user id in the format [userid,roomid]")
     urid=input()
     aList=urid.split(",")
     if len(aList) == 2:
@@ -22,7 +22,7 @@ def buildMessage():
           th = str(t.tm_hour)
           tm = str(t.tm_min)
           ts = str(t.tm_sec)
-          message = {'source':'cardreader','destination':'timetable','operation':'access','data':{'userid':str(uid),'roomid':str(rid),'day':day,'month':month,'year':year,'hours':th,'minutes':tm,'seconds':ts}}
+          message = {'source':'cardreader','destination':'enteties','operation':'access','data':{'userid':str(uid),'roomid':str(rid),'day':day,'month':month,'year':year,'hours':th,'minutes':tm,'seconds':ts}}
           message=json.dumps(message)
           message=message.encode('utf-8')
           #message=message.decode()

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>UMA - Platform</title>
+     <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <!-- Popper JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.6/umd/popper.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js"></script>
+
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+                <nav class="navbar">
+                    <div class="container">
+                        <div class="col-lg-12 text-center">
+                            <a href="/dashboard"><img width="20%" src="../../../../../../Desktop/SDprojectSD/SD(FINAL)/Flask/Flask/static/uma.gif"></a>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+        <div class="container" id="formSection" style="background-color: aliceblue;border-radius: 25px;margin-bottom: 50px;">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <h1 style="margin-top: 20px;">
+                        Book a Room
+                    </h1>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-2">
+                </div>
+                <div class="col-lg-8">
+                     <form method="post">
+                         <div class="form-group">
+                             <label for="room">Room:</label>
+                             <select name="room" class="form-control" id="room">
+                                 {% for n in data %}
+                                    <option value ="{{n['id']}}">Sala {{n['number']}}</option>
+                                 {% endfor %}
+                             </select>
+                         </div>
+                         <div class="form-group">
+                             <label for="startTime">Start Time:</label>
+                             <select name="startTime" class="form-control" id="startTime">
+                                 {% for i in range(15)  %}
+                                     {% for j in range(2)  %}
+                                        {% if j == 0 %}
+                                            <option value="{{i+8}}:00">{{i+8}}:00</option>
+                                        {% else %}
+                                            {% if i != 14 %}
+                                                <option value="{{i+8}}:30">{{i+8}}:30</option>
+                                            {% endif %}
+                                        {% endif %}
+                                     {% endfor %}
+                                 {% endfor %}
+                             </select>
+                             <label for="endTime">End Time:</label>
+                             <select name="endTime" class="form-control" id="endTime">
+                                 {% for i in range(15)  %}
+                                     {% for j in range(2)  %}
+                                        {% if j == 0 %}
+                                            <option value="{{i+8}}:00">{{i+8}}:00</option>
+                                        {% else %}
+                                            {% if i != 14 %}
+                                                <option value="{{i+8}}:30">{{i+8}}:30</option>
+                                            {% endif %}
+                                        {% endif %}
+                                     {% endfor %}
+                                 {% endfor %}
+                             </select>
+                         </div>
+                         <div class="form-group">
+                             <label for="day">Day:</label>
+                             <select name="day" class="form-control" id="day">
+                                 {% for i in range(31)  %}
+                                     <option value="{{i+1}}">{{i+1}}</option>
+                                 {% endfor %}
+                             </select>
+                             <label for="month">Month:</label>
+                             <select name="month" class="form-control" id="month">
+                                 <option value="1">Janeiro</option>
+                                 <option value="2">Fevereiro</option>
+                                 <option value="3">Marco</option>
+                                 <option value="4">Abril</option>
+                                 <option value="5">Maio</option>
+                                 <option value="6">Junho</option>
+                                 <option value="7">Julho</option>
+                                 <option value="8">Agosto</option>
+                                 <option value="9">Setembro</option>
+                                 <option value="10">Outubro</option>
+                                 <option value="11">Novembro</option>
+                                 <option value="12">Dezembro</option>
+                             </select>
+                             <label for="year">Year:</label>
+                             <select name="year" class="form-control" id="year">
+                                 <option value="{{year}}">{{year}}</option>
+                                 <option value="{{year+1}}">{{year+1}}</option>
+                             </select>
+                         </div>
+                         <button type="submit" class="btn btn-primary">Book Room</button>
+                     </form>
+                </div>
+                <div class="col-lg-2">
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
